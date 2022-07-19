@@ -4,7 +4,8 @@ import './styles/index.css'
 import initialStoreItems from './store-items'
 import { useState } from 'react'
 import StoreItemList from './components/StoreItemList'
-import CartItemList from './components/CartItemList'
+
+import Cart from './components/Cart'
 
 /*
 Here's what a store item should look like
@@ -23,35 +24,64 @@ export default function App() {
   // Setup state here...
   const [storeItems, setStoreItems] = useState(initialStoreItems)
   const [cartItems, setCartItems] = useState([])
+  //const [total,setTotal] = useState (0)
+
+
+  const addQuantity = item => {
+    const existingItemsinCart = [...cartItems]
+    for (let i = 0; i < existingItemsinCart.length; i++) {
+      if (existingItemsinCart[i].id === item.id) {
+        existingItemsinCart[i].itemQuantity++
+        console.log('item to add',existingItemsinCart[i])
+      }
+    }
+    setCartItems(existingItemsinCart)
+    console.log('list after added item',existingItemsinCart)
+    //getTotal()
+  }
+
+  const minusQuantity = item => {
+    const existingItemsinCart = [...cartItems]
+    for (let i = 0; i < existingItemsinCart.length; i++) {
+      if (existingItemsinCart[i].id === item.id && existingItemsinCart[i].itemQuantity>0) {
+        existingItemsinCart[i].itemQuantity--
+      }
+      if (existingItemsinCart[i].id === item.id && existingItemsinCart[i].itemQuantity===0){
+        existingItemsinCart.splice(i,1)
+      }
+      setCartItems(existingItemsinCart)
+    }
+    //getTotal()
+  }
+    
+
+    const addItemToCart = item => {
+      const newCart = [...cartItems]
+      item.itemQuantity = 1
+      if (!newCart.includes(item)){
+        newCart.push(item)
+      }
+      else {alert ("item already in cart, please edit quantity")}
+      setCartItems(newCart)
+      
+    }
+
+    const total = Math.round(cartItems.reduce((runningTotal, item) => item.price*item.itemQuantity + runningTotal, 0) * 100) / 100
+    
+    
+    
 
   return (
     <>
       <header id="store">
-        <h1>Greengrocers</h1>
-        <ul className="item-list store--item-list">
-          <StoreItemList
-            storeItems={storeItems}
-            cartItems={cartItems}
-            setCartItems={setCartItems}
-          />
-        </ul>
-      </header>
-      <main id="cart">
-        <h2>Your Cart</h2>
-        <div className="cart--item-list-container">
-          <ul className="item-list cart--item-list">
-            <CartItemList cartItems={cartItems} setCartItems={setCartItems} />
-          </ul>
-        </div>
-        <div className="total-section">
-          <div>
-            <h3>Total</h3>
-          </div>
-          <div>
-            <span className="total-number">£0.00</span>
-          </div>
-        </div>
-      </main>
+    <h1>Greengrocers</h1>
+    <ul className="item-list store--item-list">
+      <StoreItemList
+        storeItems={storeItems}
+        addItemToCart ={addItemToCart}     />
+    </ul>
+  </header>
+      <Cart addQuantity={addQuantity} minusQuantity={minusQuantity} cartItems={cartItems} total={total} />
       <div>
         Icons made by
         <a
